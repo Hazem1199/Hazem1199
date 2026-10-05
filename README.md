@@ -7,6 +7,7 @@
 </p>
 
 <p align="center">
+  <a href="https://hazem1199.github.io/Hazem1199/"><img src="https://img.shields.io/badge/Portfolio-hazem1199.github.io-0a0a0a?style=flat-square&logo=googlechrome&logoColor=white" alt="Portfolio"></a>
   <a href="mailto:eng.hazemnorelden@gmail.com"><img src="https://img.shields.io/badge/Email-eng.hazemnorelden%40gmail.com-0a0a0a?style=flat-square&logo=gmail&logoColor=white" alt="Email"></a>
   <a href="https://linkedin.com/in/enghazemessam"><img src="https://img.shields.io/badge/LinkedIn-enghazemessam-0a0a0a?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
   <a href="./hazem-essam2026pdf.pdf"><img src="https://img.shields.io/badge/CV-Download-0a0a0a?style=flat-square&logo=adobeacrobatreader&logoColor=white" alt="Download CV"></a>
@@ -94,5 +95,6 @@ HTML, CSS, JavaScript, and the Vue.js framework.
 
 <p align="center">
   <b>Got a Vue.js project?</b> Let's talk.<br>
+  <a href="https://hazem1199.github.io/Hazem1199/">→ Full portfolio</a><br>
   <a href="mailto:eng.hazemnorelden@gmail.com">eng.hazemnorelden@gmail.com</a> · +20 109 962 8467 · +20 112 635 1129
 </p>
