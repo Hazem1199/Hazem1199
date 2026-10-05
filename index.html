@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hazem Essam — Software Engineer</title>
+    <meta name="description" content="Software Engineer specializing in Vue.js, AI integration, workflow automation, and building production-ready applications.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { cursor: none; }
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: #0a0a0a;
+            color: #e5e5e5;
+            overflow-x: hidden;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        
+        .cursor-dot {
+            width: 8px; height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.1s;
+        }
+        .cursor-ring {
+            width: 40px; height: 40px;
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transition: all 0.15s ease-out;
+            mix-blend-mode: difference;
+        }
+        
+        #loader {
+            position: fixed; inset: 0;
+            background: #0a0a0a;
+            z-index: 10000;
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column;
+        }
+        .loader-text {
+            font-size: clamp(2rem, 8vw, 6rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+        
+        .marquee {
+            display: flex;
+            overflow: hidden;
+            user-select: none;
+            gap: 2rem;
+        }
+        .marquee-track {
+            display: flex;
+            gap: 2rem;
+            animation: scroll 30s linear infinite;
+            flex-shrink: 0;
+        }
+        @keyframes scroll {
+            from { transform: translateX(0); }
+            to { transform: translateX(-100%); }
+        }
+        
+        .project-card {
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+            transition: left 0.5s ease;
+        }
+        .project-card:hover::before {
+            left: 100%;
+        }
+        .project-card:hover {
+            background: rgba(255,255,255,0.02);
+        }
+        .project-card:hover .project-arrow {
+            transform: translate(8px, -8px);
+            opacity: 1;
+        }
+        .project-arrow { 
+            transition: all 0.4s ease;
+            opacity: 0.3;
+        }
+        
+        .stat-number {
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #fff 0%, #a3a3a3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .link-hover {
+            position: relative;
+            display: inline-block;
+        }
+        .link-hover::after {
+            content: '';
+            position: absolute;
+            left: 0; bottom: -2px;
+            width: 100%; height: 1px;
+            background: currentColor;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.4s ease;
+        }
+        .link-hover:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        
+        .grid-bg {
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #404040; }
+        
+        .reveal { opacity: 0; transform: translateY(40px); }
+        .reveal.visible { opacity: 1; transform: translateY(0); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s ease;
+        }
+        .tag:hover {
+            border-color: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .live-dot {
+            width: 6px; height: 6px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .internal-badge {
+            background: rgba(255,255,255,0.05);
+            border: 1px dashed rgba(255,255,255,0.2);
+        }
+
+        /* Fallback: show everything if JS fails */
+        .no-js .reveal { opacity: 1; transform: none; }
+    </style>
+</head>
+<body class="grid-bg">
+
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+
+    <div id="loader">
+        <div class="loader-text mono" id="loaderText">hazem_</div>
+        <div class="mono text-sm text-neutral-500 mt-4" id="loaderSub">initializing</div>
+    </div>
+
+    <nav class="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-6 flex justify-between items-center mix-blend-difference">
+        <a href="#" class="mono text-sm font-medium tracking-tight">
+            <span class="text-white">./</span>hazem.essam
+        </a>
+        <div class="hidden md:flex gap-8 mono text-xs">
+            <a href="#experience" class="link-hover text-white/70 hover:text-white">experience</a>
+            <a href="#work" class="link-hover text-white/70 hover:text-white">work</a>
+            <a href="#stack" class="link-hover text-white/70 hover:text-white">stack</a>
+            <a href="#contact" class="link-hover text-white/70 hover:text-white">contact</a>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="hazem-essam2026pdf.pdf" download="Hazem-Essam-CV-2026.pdf" class="mono text-xs border border-white/20 px-4 py-2 rounded-full hover:bg-white hover:text-black transition-all">
+                download cv ↓
+            </a>
+            <a href="#contact" class="mono text-xs border border-white/20 px-4 py-2 rounded-full hover:bg-white hover:text-black transition-all">
+                hire me →
+            </a>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="min-h-screen flex flex-col justify-center px-6 md:px-12 pt-32 pb-20 relative">
+        <div class="max-w-7xl mx-auto w-full">
+            <div class="mono text-xs text-neutral-500 mb-8 reveal">[ 01 — introduction ]</div>
+            <h1 class="text-[clamp(2.5rem,10vw,9rem)] font-bold leading-[0.9] tracking-tight reveal">
+                Software<br>
+                <span class="gradient-text">engineer.</span><br>
+                <span class="italic font-light">AI integrator.</span>
+            </h1>
+            <div class="mt-16 max-w-xl reveal">
+                <p class="text-lg text-neutral-400 leading-relaxed">
+                    I build Vue.js applications and system integrations that handle real business logic — 
+                    CRMs, asset management, AI agents, workflow automations. 
+                    Not landing pages. Real products.
+                </p>
+                <div class="mt-8 flex gap-4 mono text-xs text-neutral-500">
+                    <span>↓ scroll</span>
+                    <span class="flex-1 border-b border-neutral-800"></span>
+                    <span>Cairo, Egypt · 3 yrs</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MARQUEE -->
+    <section class="border-y border-neutral-900 py-8 overflow-hidden">
+        <div class="marquee">
+            <div class="marquee-track">
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap text-neutral-600">Vue.js</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap">/</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap text-neutral-600">Pinia</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap">/</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap text-neutral-600">Vuex</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap">/</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap text-neutral-600">Nuxt.js</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap">/</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap text-neutral-600">Tailwind</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap">/</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap text-neutral-600">AI/LLM</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap">/</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap text-neutral-600">Automation</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap">/</span>
+            </div>
+            <div class="marquee-track">
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap text-neutral-600">Vue.js</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap">/</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap text-neutral-600">Pinia</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap">/</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap text-neutral-600">Vuex</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap">/</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap text-neutral-600">Nuxt.js</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap">/</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap text-neutral-600">Tailwind</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap">/</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap text-neutral-600">AI/LLM</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap">/</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap text-neutral-600">Automation</span>
+                <span class="mono text-2xl md:text-4xl font-medium whitespace-nowrap">/</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- WHAT I ACTUALLY DO -->
+    <section class="px-6 md:px-12 py-32">
+        <div class="max-w-7xl mx-auto">
+            <div class="mono text-xs text-neutral-500 mb-16 reveal">[ 02 — what i actually do ]</div>
+            
+            <div class="grid md:grid-cols-12 gap-8">
+                <div class="md:col-span-5 reveal">
+                    <h2 class="text-4xl md:text-6xl font-bold leading-tight">
+                        I build the<br>
+                        <span class="text-neutral-500">interfaces</span><br>
+                        people use daily.
+                    </h2>
+                </div>
+                <div class="md:col-span-6 md:col-start-7 space-y-8 reveal">
+                    <p class="text-xl text-neutral-400 leading-relaxed">
+                        At Brooklyn Business School, I'm the software engineer responsible for 
+                        the entire digital ecosystem — public portals, internal CRMs, SaaS products, AI tools. 
+                        One person. Multiple products. All in production.
+                    </p>
+                    <p class="text-lg text-neutral-500 leading-relaxed">
+                        My distinctive edge: I integrate AI models directly into web applications. 
+                        Not as a gimmick — as a way to automate workflows and reduce manual work. 
+                        Smart search, auto-categorization, context-aware guidance.
+                    </p>
+                    <p class="text-lg text-neutral-500 leading-relaxed">
+                        I'm framework-agnostic and pragmatic. If a Google Sheet and a Viasocket flow 
+                        solve the problem this week, I won't spend a month building infrastructure for it.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section id="experience" class="px-6 md:px-12 py-32 border-t border-neutral-900">
+        <div class="max-w-7xl mx-auto">
+            <div class="mono text-xs text-neutral-500 mb-16 reveal">[ 03 — the journey ]</div>
+
+            <div class="grid md:grid-cols-12 gap-8">
+                <div class="md:col-span-5 reveal">
+                    <h2 class="text-4xl md:text-6xl font-bold leading-tight">
+                        Where I've<br>
+                        <span class="text-neutral-500">been</span><br>
+                        shipping.
+                    </h2>
+                </div>
+                <div class="md:col-span-6 md:col-start-7">
+                    <div class="relative border-l border-neutral-800 pl-8 pb-14 reveal">
+                        <span class="absolute -left-[5px] top-1 w-[9px] h-[9px] rounded-full bg-green-500"></span>
+                        <div class="mono text-xs text-neutral-500">2022 — present · Cairo, Egypt</div>
+                        <h3 class="text-2xl md:text-3xl font-semibold mt-3">Software Engineer</h3>
+                        <div class="text-neutral-400 mt-1">Brooklyn Business School</div>
+                        <p class="text-neutral-500 mt-4 leading-relaxed">
+                            Key developer responsible for building and maintaining the organization's
+                            digital ecosystem, focusing on practical integrations and operational efficiency.
+                        </p>
+                        <ul class="mt-6 space-y-3 mono text-xs text-neutral-400">
+                            <li class="flex gap-3"><span class="text-neutral-600">→</span><span>valuecrm.net — CRM for real estate & small businesses</span></li>
+                            <li class="flex gap-3"><span class="text-neutral-600">→</span><span>Operational Copilot — internal AI support agent</span></li>
+                            <li class="flex gap-3"><span class="text-neutral-600">→</span><span>1task.net — asset lifecycle SaaS</span></li>
+                            <li class="flex gap-3"><span class="text-neutral-600">→</span><span>brooklynacademy.net — educational portal</span></li>
+                            <li class="flex gap-3"><span class="text-neutral-600">→</span><span>Brooklyn CRM — internal student & sales system</span></li>
+                            <li class="flex gap-3"><span class="text-neutral-600">→</span><span>Automations — payment reminders, email flows, Viasocket</span></li>
+                        </ul>
+                    </div>
+                    <div class="relative border-l border-neutral-800 pl-8 pb-14 reveal">
+                        <span class="absolute -left-[5px] top-1 w-[9px] h-[9px] rounded-full bg-neutral-600"></span>
+                        <div class="mono text-xs text-neutral-500">2022 · Cairo, Egypt</div>
+                        <h3 class="text-2xl md:text-3xl font-semibold mt-3">Frontend Development Diploma</h3>
+                        <div class="text-neutral-400 mt-1">ITShare Training Center</div>
+                        <p class="text-neutral-500 mt-4 leading-relaxed">
+                            Comprehensive training covering HTML, CSS, JavaScript, and the Vue.js framework.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-6">
+                            <span class="tag">HTML</span>
+                            <span class="tag">CSS</span>
+                            <span class="tag">JavaScript</span>
+                            <span class="tag">Vue.js</span>
+                        </div>
+                    </div>
+                    <div class="pl-8 reveal">
+                        <div class="mono text-xs text-neutral-600 mb-6">LANGUAGES</div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                                <span class="text-xl">Arabic</span>
+                                <span class="mono text-xs text-neutral-500">native</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xl">English</span>
+                                <span class="mono text-xs text-neutral-500">professional working</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WORK / PROJECTS -->
+    <section id="work" class="px-6 md:px-12 py-32 border-t border-neutral-900">
+        <div class="max-w-7xl mx-auto">
+            <div class="mono text-xs text-neutral-500 mb-16 reveal">[ 04 — proof, not promises ]</div>
+            
+            <div class="space-y-0">
+                <!-- Project: Value CRM -->
+                <a href="https://valuecrm.net/" target="_blank" rel="noopener" class="project-card block border-t border-neutral-900 py-12 group reveal">
+                    <div class="grid md:grid-cols-12 gap-6 items-start">
+                        <div class="md:col-span-1 mono text-xs text-neutral-600">01</div>
+                        <div class="md:col-span-4">
+                            <h3 class="text-3xl md:text-4xl font-semibold">valuecrm.net</h3>
+                            <div class="mono text-xs text-neutral-500 mt-3">SaaS · Real Estate CRM</div>
+                            <div class="flex flex-wrap gap-2 mt-4">
+                                <span class="tag">Vue 3</span>
+                                <span class="tag">Pinia</span>
+                                <span class="tag">Tailwind</span>
+                                <span class="tag">Facebook Leads API</span>
+                            </div>
+                        </div>
+                        <div class="md:col-span-5">
+                            <p class="text-neutral-400 leading-relaxed">
+                                A scalable CRM tailored for real estate agencies and small businesses —
+                                built to turn incoming leads into managed pipelines.
+                            </p>
+                            <ul class="mt-5 space-y-2 mono text-xs text-neutral-500">
+                                <li class="flex gap-3"><span class="text-neutral-700">→</span><span>Facebook Leads API integration for streamlined lead management</span></li>
+                                <li class="flex gap-3"><span class="text-neutral-700">→</span><span>Modern Vue 3 + Pinia architecture built to scale</span></li>
+                                <li class="flex gap-3"><span class="text-neutral-700">→</span><span>Next up: AI models for predictive data analysis</span></li>
+                            </ul>
+                        </div>
+                        <div class="md:col-span-2 text-right flex flex-col items-end">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="w-[6px] h-[6px] rounded-full bg-amber-400 animate-pulse"></span>
+                                <span class="mono text-xs text-amber-400">building</span>
+                            </div>
+                            <div class="stat-number text-3xl font-bold">Vue<span class="text-neutral-600 text-lg">3</span></div>
+                            <div class="mono text-xs text-neutral-500 mt-1">ongoing</div>
+                            <div class="project-arrow mt-4 text-2xl">↗</div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project: Operational Copilot (Internal) -->
+                <div class="project-card border-t border-neutral-900 py-12 group reveal">
+                    <div class="grid md:grid-cols-12 gap-6 items-start">
+                        <div class="md:col-span-1 mono text-xs text-neutral-600">02</div>
+                        <div class="md:col-span-4">
+                            <h3 class="text-3xl md:text-4xl font-semibold">Operational Copilot</h3>
+                            <div class="mono text-xs text-neutral-500 mt-3">Internal AI Support Agent</div>
+                            <div class="flex flex-wrap gap-2 mt-4">
+                                <span class="tag">LLM</span>
+                                <span class="tag">AI Agent</span>
+                                <span class="tag">Google Sheets</span>
+                            </div>
+                        </div>
+                        <div class="md:col-span-5">
+                            <p class="text-neutral-400 leading-relaxed">
+                                An internal AI agent that helps employees handle client inquiries by
+                                analyzing historical customer interactions and previous scenarios.
+                            </p>
+                            <ul class="mt-5 space-y-2 mono text-xs text-neutral-500">
+                                <li class="flex gap-3"><span class="text-neutral-700">→</span><span>Google Sheets as a lightweight knowledge source for the LLM</span></li>
+                                <li class="flex gap-3"><span class="text-neutral-700">→</span><span>Real-time, context-aware guidance for employees</span></li>
+                                <li class="flex gap-3"><span class="text-neutral-700">→</span><span>Enterprise knowledge without heavy infrastructure</span></li>
+                            </ul>
+                            <div class="internal-badge inline-block mt-4 px-3 py-1 rounded">
+                                <span class="mono text-xs text-neutral-400">🔒 Internal · NDA Protected</span>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2 text-right flex flex-col items-end">
+                            <div class="stat-number text-3xl font-bold">LLM<span class="text-neutral-600 text-lg">-agent</span></div>
+                            <div class="mono text-xs text-neutral-500 mt-1">context-aware</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project: 1task.net -->
+                <a href="https://www.1task.net/" target="_blank" rel="noopener" class="project-card block border-t border-neutral-900 py-12 group reveal">
+                    <div class="grid md:grid-cols-12 gap-6 items-start">
+                        <div class="md:col-span-1 mono text-xs text-neutral-600">03</div>
+                        <div class="md:col-span-4">
+                            <h3 class="text-3xl md:text-4xl font-semibold">1task.net</h3>
+                            <div class="mono text-xs text-neutral-500 mt-3">SaaS · Asset Management</div>
+                            <div class="flex flex-wrap gap-2 mt-4">
+                                <span class="tag">Vue.js</span>
+                                <span class="tag">Tailwind</span>
+                                <span class="tag">Vuex</span>
+                            </div>
+                        </div>
+                        <div class="md:col-span-5">
+                            <p class="text-neutral-400 leading-relaxed">
+                                Engineered the frontend of a complex SaaS platform for asset lifecycle
+                                management, used daily by inspectors and engineers.
+                            </p>
+                            <ul class="mt-5 space-y-2 mono text-xs text-neutral-500">
+                                <li class="flex gap-3"><span class="text-neutral-700">→</span><span>Advanced Vuex state for real-time updates across dashboards</span></li>
+                                <li class="flex gap-3"><span class="text-neutral-700">→</span><span>Interactive defect tracking modules</span></li>
+                                <li class="flex gap-3"><span class="text-neutral-700">→</span><span>Dynamic reporting interfaces for critical data</span></li>
+                            </ul>
+                        </div>
+                        <div class="md:col-span-2 text-right flex flex-col items-end">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="live-dot"></span>
+                                <span class="mono text-xs text-green-500">live</span>
+                            </div>
+                            <div class="stat-number text-3xl font-bold">2022<span class="text-neutral-600 text-lg">—now</span></div>
+                            <div class="mono text-xs text-neutral-500 mt-1">in production</div>
+                            <div class="project-arrow mt-4 text-2xl">↗</div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project: Brooklyn Academy -->
+                <a href="https://www.brooklynacademy.net/bbs/" target="_blank" rel="noopener" class="project-card block border-t border-neutral-900 py-12 group reveal">
+                    <div class="grid md:grid-cols-12 gap-6 items-start">
+                        <div class="md:col-span-1 mono text-xs text-neutral-600">04</div>
+                        <div class="md:col-span-4">
+                            <h3 class="text-3xl md:text-4xl font-semibold">brooklynacademy.net</h3>
+                            <div class="mono text-xs text-neutral-500 mt-3">Educational Portal</div>
+                            <div class="flex flex-wrap gap-2 mt-4">
+                                <span class="tag">Vue.js</span>
+                                <span class="tag">SEO</span>
+                                <span class="tag">Performance</span>
+                            </div>
+                        </div>
+                        <div class="md:col-span-5">
+                            <p class="text-neutral-400 leading-relaxed">
+                                Revamped the main educational portal UI/UX, with a focus on
+                                conversion, speed, and search visibility.
+                            </p>
+                            <ul class="mt-5 space-y-2 mono text-xs text-neutral-500">
+                                <li class="flex gap-3"><span class="text-neutral-700">→</span><span>Course listing pages optimized for conversion</span></li>
+                                <li class="flex gap-3"><span class="text-neutral-700">→</span><span>Code splitting and lazy-loaded assets</span></li>
+                                <li class="flex gap-3"><span class="text-neutral-700">→</span><span>Improved performance and SEO scores</span></li>
+                            </ul>
+                        </div>
+                        <div class="md:col-span-2 text-right flex flex-col items-end">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="live-dot"></span>
+                                <span class="mono text-xs text-green-500">live</span>
+                            </div>
+                            <div class="stat-number text-3xl font-bold">↑<span class="text-neutral-600 text-lg">SEO</span></div>
+                            <div class="mono text-xs text-neutral-500 mt-1">optimized</div>
+                            <div class="project-arrow mt-4 text-2xl">↗</div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project: Brooklyn CRM (Internal) -->
+                <div class="project-card border-t border-neutral-900 py-12 group reveal">
+                    <div class="grid md:grid-cols-12 gap-6 items-start">
+                        <div class="md:col-span-1 mono text-xs text-neutral-600">05</div>
+                        <div class="md:col-span-4">
+                            <h3 class="text-3xl md:text-4xl font-semibold">Brooklyn CRM</h3>
+                            <div class="mono text-xs text-neutral-500 mt-3">Internal Tool · AI-Powered</div>
+                            <div class="flex flex-wrap gap-2 mt-4">
+                                <span class="tag">Vue.js</span>
+                                <span class="tag">Bootstrap</span>
+                                <span class="tag">OpenAI API</span>
+                            </div>
+                        </div>
+                        <div class="md:col-span-5">
+                            <p class="text-neutral-400 leading-relaxed">
+                                Custom CRM built from scratch for student data, enrollments,
+                                and sales workflows — significantly reducing manual data entry time.
+                            </p>
+                            <ul class="mt-5 space-y-2 mono text-xs text-neutral-500">
+                                <li class="flex gap-3"><span class="text-neutral-700">→</span><span>AI models for automatic data categorization</span></li>
+                                <li class="flex gap-3"><span class="text-neutral-700">→</span><span>Smart search across student records</span></li>
+                                <li class="flex gap-3"><span class="text-neutral-700">→</span><span>Responsive Bootstrap admin panels, accessible on any device</span></li>
+                            </ul>
+                            <div class="internal-badge inline-block mt-4 px-3 py-1 rounded">
+                                <span class="mono text-xs text-neutral-400">🔒 Internal · NDA Protected</span>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2 text-right flex flex-col items-end">
+                            <div class="stat-number text-3xl font-bold">AI<span class="text-neutral-600 text-lg">-integrated</span></div>
+                            <div class="mono text-xs text-neutral-500 mt-1">smart search</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project: Automations (Internal) -->
+                <div class="project-card border-t border-neutral-900 py-12 group reveal">
+                    <div class="grid md:grid-cols-12 gap-6 items-start">
+                        <div class="md:col-span-1 mono text-xs text-neutral-600">06</div>
+                        <div class="md:col-span-4">
+                            <h3 class="text-3xl md:text-4xl font-semibold">Automations</h3>
+                            <div class="mono text-xs text-neutral-500 mt-3">System Integrations · Workflows</div>
+                            <div class="flex flex-wrap gap-2 mt-4">
+                                <span class="tag">Google Sheets</span>
+                                <span class="tag">Viasocket</span>
+                                <span class="tag">Custom Scripts</span>
+                            </div>
+                        </div>
+                        <div class="md:col-span-5">
+                            <p class="text-neutral-400 leading-relaxed">
+                                Resourceful integrations that connect internal systems and remove
+                                repetitive work — without complex infrastructure overhead.
+                            </p>
+                            <ul class="mt-5 space-y-2 mono text-xs text-neutral-500">
+                                <li class="flex gap-3"><span class="text-neutral-700">→</span><span>Automated student payment reminders via custom scripts</span></li>
+                                <li class="flex gap-3"><span class="text-neutral-700">→</span><span>Email notification workflows on Google Sheets as a lightweight DB</span></li>
+                                <li class="flex gap-3"><span class="text-neutral-700">→</span><span>Viasocket flows connecting internal systems</span></li>
+                            </ul>
+                            <div class="internal-badge inline-block mt-4 px-3 py-1 rounded">
+                                <span class="mono text-xs text-neutral-400">🔒 Internal</span>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2 text-right flex flex-col items-end">
+                            <div class="stat-number text-3xl font-bold">0<span class="text-neutral-600 text-lg">-infra</span></div>
+                            <div class="mono text-xs text-neutral-500 mt-1">rapid deploy</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STACK -->
+    <section id="stack" class="px-6 md:px-12 py-32 border-t border-neutral-900">
+        <div class="max-w-7xl mx-auto">
+            <div class="mono text-xs text-neutral-500 mb-16 reveal">[ 05 — the stack ]</div>
+            
+            <div class="grid md:grid-cols-2 gap-px bg-neutral-900">
+                <div class="bg-[#0a0a0a] p-8 md:p-16 reveal">
+                    <div class="mono text-xs text-neutral-600 mb-6">01 / CORE</div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                            <span class="text-xl">JavaScript</span>
+                            <span class="mono text-xs text-neutral-500">ES6+</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                            <span class="text-xl">HTML5 / CSS3</span>
+                            <span class="mono text-xs text-neutral-500">semantic</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                            <span class="text-xl">RESTful APIs</span>
+                            <span class="mono text-xs text-neutral-500">integration</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                            <span class="text-xl">JSON</span>
+                            <span class="mono text-xs text-neutral-500">data</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl">Python</span>
+                            <span class="mono text-xs text-neutral-500">basic</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-[#0a0a0a] p-8 md:p-16 reveal">
+                    <div class="mono text-xs text-neutral-600 mb-6">02 / FRAMEWORKS</div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                            <span class="text-xl">Vue.js 2 & 3</span>
+                            <span class="mono text-xs text-neutral-500">options + composition</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                            <span class="text-xl">Pinia / Vuex</span>
+                            <span class="mono text-xs text-neutral-500">state</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                            <span class="text-xl">Vue Router</span>
+                            <span class="mono text-xs text-neutral-500">routing</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl">Nuxt.js</span>
+                            <span class="mono text-xs text-neutral-500">SSR</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-[#0a0a0a] p-8 md:p-16 reveal">
+                    <div class="mono text-xs text-neutral-600 mb-6">03 / STYLING</div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                            <span class="text-xl">Tailwind CSS</span>
+                            <span class="mono text-xs text-neutral-500">utility</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                            <span class="text-xl">Bootstrap</span>
+                            <span class="mono text-xs text-neutral-500">components</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl">Sass / SCSS</span>
+                            <span class="mono text-xs text-neutral-500">preprocessor</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-[#0a0a0a] p-8 md:p-16 reveal">
+                    <div class="mono text-xs text-neutral-600 mb-6">04 / TOOLS</div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                            <span class="text-xl">Git / GitHub</span>
+                            <span class="mono text-xs text-neutral-500">version control</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                            <span class="text-xl">Vite / Webpack</span>
+                            <span class="mono text-xs text-neutral-500">bundling</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl">Real-time data</span>
+                            <span class="mono text-xs text-neutral-500">live dashboards</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-[#0a0a0a] p-8 md:p-16 md:col-span-2 reveal">
+                    <div class="mono text-xs text-neutral-600 mb-6">05 / AI & AUTOMATION</div>
+                    <div class="grid md:grid-cols-2 gap-x-16 gap-y-3">
+                        <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                            <span class="text-xl">OpenAI API</span>
+                            <span class="mono text-xs text-neutral-500">LLM integration</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                            <span class="text-xl">Gemini</span>
+                            <span class="mono text-xs text-neutral-500">LLM integration</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                            <span class="text-xl">Viasocket</span>
+                            <span class="mono text-xs text-neutral-500">workflow automation</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                            <span class="text-xl">Google Sheets</span>
+                            <span class="mono text-xs text-neutral-500">lightweight db</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NUMBERS -->
+    <section class="px-6 md:px-12 py-32 border-t border-neutral-900">
+        <div class="max-w-7xl mx-auto">
+            <div class="mono text-xs text-neutral-500 mb-16 reveal">[ 06 — the numbers ]</div>
+            
+            <div class="grid md:grid-cols-3 gap-px bg-neutral-900">
+                <div class="bg-[#0a0a0a] p-8 md:p-16 reveal">
+                    <div class="stat-number text-7xl md:text-8xl font-bold tracking-tighter">3</div>
+                    <div class="mt-6 text-xl text-neutral-400">years shipping</div>
+                    <div class="mono text-xs text-neutral-600 mt-2">in production environments</div>
+                </div>
+                <div class="bg-[#0a0a0a] p-8 md:p-16 reveal">
+                    <div class="stat-number text-7xl md:text-8xl font-bold tracking-tighter">6</div>
+                    <div class="mt-6 text-xl text-neutral-400">products & systems</div>
+                    <div class="mono text-xs text-neutral-600 mt-2">live or in active development</div>
+                </div>
+                <div class="bg-[#0a0a0a] p-8 md:p-16 reveal">
+                    <div class="stat-number text-7xl md:text-8xl font-bold tracking-tighter">2</div>
+                    <div class="mt-6 text-xl text-neutral-400">AI-powered systems</div>
+                    <div class="mono text-xs text-neutral-600 mt-2">copilot agent + smart CRM</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WHAT I WON'T DO -->
+    <section class="px-6 md:px-12 py-32 border-t border-neutral-900">
+        <div class="max-w-7xl mx-auto">
+            <div class="mono text-xs text-neutral-500 mb-16 reveal">[ 07 — what i won't do ]</div>
+            
+            <div class="grid md:grid-cols-12 gap-8">
+                <div class="md:col-span-5 reveal">
+                    <h2 class="text-4xl md:text-6xl font-bold leading-tight">
+                        Some things<br>
+                        I <span class="text-neutral-500 line-through">don't</span><br>
+                        do anymore.
+                    </h2>
+                </div>
+                <div class="md:col-span-6 md:col-start-7 space-y-6 reveal">
+                    <div class="border-l-2 border-neutral-800 pl-6">
+                        <div class="text-xl font-medium">Progress bars for skills</div>
+                        <div class="text-neutral-500 mt-2">90% JavaScript means nothing. Show me what you built.</div>
+                    </div>
+                    <div class="border-l-2 border-neutral-800 pl-6">
+                        <div class="text-xl font-medium">AI as a buzzword</div>
+                        <div class="text-neutral-500 mt-2">I integrate it to solve real problems, not to sound fancy.</div>
+                    </div>
+                    <div class="border-l-2 border-neutral-800 pl-6">
+                        <div class="text-xl font-medium">Projects that look good but break</div>
+                        <div class="text-neutral-500 mt-2">Reliability > aesthetics. Always.</div>
+                    </div>
+                    <div class="border-l-2 border-neutral-800 pl-6">
+                        <div class="text-xl font-medium">Meetings that could be a Loom</div>
+                        <div class="text-neutral-500 mt-2">If it can be async, it should be.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="px-6 md:px-12 py-32 border-t border-neutral-900">
+        <div class="max-w-7xl mx-auto">
+            <div class="mono text-xs text-neutral-500 mb-16 reveal">[ 08 — let's talk ]</div>
+            
+            <div class="reveal">
+                <h2 class="text-[clamp(2.5rem,10vw,12rem)] font-bold leading-[0.9] tracking-tight">
+                    Got a<br>
+                    <span class="gradient-text italic font-light">Vue.js</span><br>
+                    project?
+                </h2>
+                <div class="mt-16 grid md:grid-cols-2 gap-12">
+                    <div>
+                        <p class="text-2xl text-neutral-400 leading-relaxed max-w-md">
+                            I build production-ready frontend applications with AI integration. 
+                            If you need someone who ships real products, not just prototypes — 
+                            let's talk.
+                        </p>
+                    </div>
+                    <div class="space-y-6">
+                        <div>
+                            <div class="mono text-xs text-neutral-600 mb-2">EMAIL</div>
+                            <a href="mailto:eng.hazemnorelden@gmail.com" class="text-2xl link-hover">eng.hazemnorelden@gmail.com</a>
+                        </div>
+                        <div>
+                            <div class="mono text-xs text-neutral-600 mb-2">LINKEDIN</div>
+                            <a href="https://linkedin.com/in/enghazemessam" target="_blank" rel="noopener" class="text-2xl link-hover">/in/enghazemessam</a>
+                        </div>
+                        <div>
+                            <div class="mono text-xs text-neutral-600 mb-2">GITHUB</div>
+                            <a href="https://github.com/Hazem1199" target="_blank" rel="noopener" class="text-2xl link-hover">@Hazem1199</a>
+                        </div>
+                        <div>
+                            <div class="mono text-xs text-neutral-600 mb-2">PHONE</div>
+                            <div class="flex flex-col gap-2">
+                                <a href="tel:+201099628467" class="text-2xl link-hover self-start">+20 109 962 8467</a>
+                                <a href="tel:+201126351129" class="text-2xl link-hover self-start">+20 112 635 1129</a>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="mono text-xs text-neutral-600 mb-2">RESUME</div>
+                            <a href="hazem-essam2026pdf.pdf" download="Hazem-Essam-CV-2026.pdf" class="text-2xl link-hover">Download CV ↓</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="px-6 md:px-12 py-12 border-t border-neutral-900">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div class="mono text-xs text-neutral-600">
+                © 2026 Hazem Essam · Software Engineer · Cairo, Egypt
+            </div>
+            <div class="mono text-xs text-neutral-600">
+                Built with Vue.js energy & Tailwind vibes
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Custom cursor
+        const dot = document.getElementById('cursorDot');
+        const ring = document.getElementById('cursorRing');
+        let mouseX = 0, mouseY = 0;
+        let ringX = 0, ringY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            dot.style.left = mouseX - 4 + 'px';
+            dot.style.top = mouseY - 4 + 'px';
+        });
+
+        function animateRing() {
+            ringX += (mouseX - ringX) * 0.15;
+            ringY += (mouseY - ringY) * 0.15;
+            ring.style.left = ringX - 20 + 'px';
+            ring.style.top = ringY - 20 + 'px';
+            requestAnimationFrame(animateRing);
+        }
+        animateRing();
+
+        document.querySelectorAll('a, .project-card, .tag').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                ring.style.width = '60px';
+                ring.style.height = '60px';
+                ring.style.borderColor = 'rgba(255,255,255,0.8)';
+            });
+            el.addEventListener('mouseleave', () => {
+                ring.style.width = '40px';
+                ring.style.height = '40px';
+                ring.style.borderColor = 'rgba(255,255,255,0.5)';
+            });
+        });
+
+        // Hide cursor on touch devices
+        if ('ontouchstart' in window) {
+            dot.style.display = 'none';
+            ring.style.display = 'none';
+            document.body.style.cursor = 'auto';
+        }
+
+        // Loader + Reveal logic
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            
+            // Wait a bit then fade out loader
+            setTimeout(() => {
+                loader.style.transition = 'opacity 0.8s ease, visibility 0.8s';
+                loader.style.opacity = '0';
+                loader.style.visibility = 'hidden';
+                
+                // After loader is gone, start revealing elements
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    revealElements();
+                }, 800);
+            }, 1500);
+        });
+
+        // Reveal elements using Intersection Observer (more reliable than GSAP for this)
+        function revealElements() {
+            const reveals = document.querySelectorAll('.reveal');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        // Add staggered delay based on position
+                        setTimeout(() => {
+                            entry.target.classList.add('visible');
+                        }, index * 50);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
+            reveals.forEach(el => observer.observe(el));
+        }
+
+        // GSAP animations (optional enhancement if GSAP loads properly)
+        if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+            gsap.registerPlugin(ScrollTrigger);
+            
+            // Parallax on hero
+            gsap.to('h1', {
+                y: 100,
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: 'h1',
+                    start: 'top top',
+                    end: 'bottom top',
+                    scrub: true
+                }
+            });
+        }
+    </script>
+</body>
+</html>
